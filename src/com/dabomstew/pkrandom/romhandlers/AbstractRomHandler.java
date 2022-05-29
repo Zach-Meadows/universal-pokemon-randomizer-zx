@@ -2102,7 +2102,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     public List<Move> getMoveSelectionPoolAtLevel(TrainerPokemon tp, boolean cyclicEvolutions) {
 
         List<Move> moves = getMoves();
-        double eggMoveProbability = 0.2;
+        double eggMoveProbability = 0.1;
         double preEvoMoveProbability = 0.5;
         double tmMoveProbability = 0.6;
         double tutorMoveProbability = 0.6;

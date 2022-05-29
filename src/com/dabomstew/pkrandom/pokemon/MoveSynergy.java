@@ -772,10 +772,10 @@ public class MoveSynergy {
         List<Integer> synergisticMoves = new ArrayList<>();
 
         if ((mv1.statChangeMoveType == StatChangeMoveType.DAMAGE_TARGET &&
-                mv1.statChanges[0].type == StatChangeType.SPEED && mv1.statChanges[0].stages < 0) ||
+                mv1.hasSpecificStatChange(StatChangeType.SPEED, false)) ||
                 ((mv1.statChangeMoveType == StatChangeMoveType.DAMAGE_USER ||
                         mv1.statChangeMoveType == StatChangeMoveType.NO_DAMAGE_USER) &&
-                        mv1.statChanges[0].type == StatChangeType.SPEED && mv1.statChanges[0].stages > 0)) {
+                        mv1.hasSpecificStatChange(StatChangeType.SPEED, true))) {
             synergisticMoves.addAll(moveList
                     .stream()
                     .filter(mv -> mv.flinchPercentChance > 0 && mv.priority == 0)
@@ -787,10 +787,10 @@ public class MoveSynergy {
             synergisticMoves.addAll(moveList
                     .stream()
                     .filter(mv -> (mv.statChangeMoveType == StatChangeMoveType.DAMAGE_TARGET &&
-                            mv.statChanges[0].type == StatChangeType.SPEED && mv.statChanges[0].stages < 0) ||
+                            mv.hasSpecificStatChange(StatChangeType.SPEED, false)) ||
                             ((mv.statChangeMoveType == StatChangeMoveType.DAMAGE_USER ||
                                     mv.statChangeMoveType == StatChangeMoveType.NO_DAMAGE_USER) &&
-                                    mv.statChanges[0].type == StatChangeType.SPEED && mv.statChanges[0].stages > 0))
+                                    mv.hasSpecificStatChange(StatChangeType.SPEED, true)))
                     .map(mv -> mv.number)
                     .collect(Collectors.toList()));
         }
