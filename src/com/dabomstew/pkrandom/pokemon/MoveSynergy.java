@@ -1081,17 +1081,19 @@ public class MoveSynergy {
                 break;
         }
 
-        switch (mv1.type) {
-            case FIRE:
-                if (mv1.category != MoveCategory.STATUS) {
-                    antiSynergisticMoves.add(Moves.waterSport);
-                }
-                break;
-            case ELECTRIC:
-                if (mv1.category != MoveCategory.STATUS) {
-                    antiSynergisticMoves.add(Moves.mudSport);
-                }
-                break;
+        if (mv1.type != null) {
+            switch (mv1.type) {
+                case FIRE:
+                    if (mv1.category != MoveCategory.STATUS) {
+                        antiSynergisticMoves.add(Moves.waterSport);
+                    }
+                    break;
+                case ELECTRIC:
+                    if (mv1.category != MoveCategory.STATUS) {
+                        antiSynergisticMoves.add(Moves.mudSport);
+                    }
+                    break;
+            }
         }
 
         return moveList
