@@ -2511,6 +2511,10 @@ public abstract class AbstractRomHandler implements RomHandler {
                     List<Move> softMoveAntiSynergyList = MoveSynergy.getSoftMoveAntiSynergy(move, movesAtLevel);
                     Collections.shuffle(softMoveAntiSynergyList, this.random);
                     for (int j = 0; j < softMoveAntiBias * softMoveAntiSynergyList.size(); j++) {
+                        distinctMoveList = movesAtLevel.stream().distinct().collect(Collectors.toList());
+                        if (distinctMoveList.size() <= (4 - i)) {
+                            break;
+                        }
                         int k = j % softMoveAntiSynergyList.size();
                         movesAtLevel.remove(softMoveAntiSynergyList.get(k));
                     }
