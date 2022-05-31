@@ -501,7 +501,7 @@ public class Randomizer {
         }
 
         if (trainersChanged) {
-            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged);
+            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged, true);
         } else {
             log.println("Trainers: Unchanged." + NEWLINE);
         }
@@ -1119,8 +1119,7 @@ public class Randomizer {
         log.println();
     }
 
-    private void maybeLogTrainerChanges(final PrintStream log, List<String> originalTrainerNames, boolean trainerNamesChanged) {
-
+    private void maybeLogTrainerChanges(final PrintStream log, List<String> originalTrainerNames, boolean trainerNamesChanged, boolean logTrainerMovesets) {
         log.println("--Trainers Pokemon--");
         List<Trainer> trainers = romHandler.getTrainers();
         int idx = 0;
@@ -1144,15 +1143,36 @@ public class Randomizer {
             if (t.offset != idx && t.offset != 0) {
                 log.printf("@%X", t.offset);
             }
-            log.print(" - ");
-            boolean first = true;
+
             String[] itemNames = romHandler.getItemNames();
-            for (TrainerPokemon tpk : t.pokemon) {
-                if (!first) {
-                    log.print(", ");
+            if (logTrainerMovesets) {
+                log.println();
+                for (TrainerPokemon tpk : t.pokemon) {
+                    List<Move> moves = romHandler.getMoves();
+                    log.printf(tpk.toString(), itemNames[tpk.heldItem]);
+                    log.print(" - ");
+                    boolean first = true;
+                    for (int move : tpk.moves) {
+                        if (move != 0) {
+                            if (!first) {
+                                log.print(", ");
+                            }
+                            log.print(moves.get(move).name);
+                            first = false;
+                        }
+                    }
+                    log.println();
                 }
-                log.printf(tpk.toString(), itemNames[tpk.heldItem]);
-                first = false;
+            } else {
+                log.print(" - ");
+                boolean first = true;
+                for (TrainerPokemon tpk : t.pokemon) {
+                    if (!first) {
+                        log.print(", ");
+                    }
+                    log.printf(tpk.toString(), itemNames[tpk.heldItem]);
+                    first = false;
+                }
             }
             log.println();
         }
