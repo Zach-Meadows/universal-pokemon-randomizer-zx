@@ -231,7 +231,8 @@ public class GlobalConstants {
     );
 
     public static final List<Integer> uselessMoves = Arrays.asList(
-            Moves.splash, Moves.celebrate, Moves.holdHands, Moves.teleport
+            Moves.splash, Moves.celebrate, Moves.holdHands, Moves.teleport,
+            Moves.reflectType       // the AI does not know how to use this move properly
     );
 
     public static final List<Integer> requiresOtherMove = Arrays.asList(

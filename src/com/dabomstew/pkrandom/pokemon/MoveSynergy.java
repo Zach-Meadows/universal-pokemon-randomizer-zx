@@ -223,6 +223,10 @@ public class MoveSynergy {
             case Abilities.sandRush:
                 synergisticMoves.add(Moves.sandstorm);
                 break;
+            case Abilities.staticTheAbilityNotTheKeyword:
+                synergisticMoves.add(Moves.smellingSalts);
+                synergisticMoves.add(Moves.hex);
+                break;
             case Abilities.compoundEyes:
                 synergisticMoves.addAll(moveList
                         .stream()
@@ -239,6 +243,12 @@ public class MoveSynergy {
             case Abilities.shadowTag:
             case Abilities.arenaTrap:
                 synergisticMoves.add(Moves.perishSong);
+                break;
+            case Abilities.poisonPoint:     // fallthrough
+                synergisticMoves.add(Moves.venoshock);
+            case Abilities.effectSpore:
+            case Abilities.flameBody:
+                synergisticMoves.add(Moves.hex);
                 break;
             case Abilities.sereneGrace:
                 synergisticMoves.addAll(moveList
@@ -385,7 +395,7 @@ public class MoveSynergy {
             case Abilities.noGuard:
                 synergisticMoves.addAll(moveList
                         .stream()
-                        .filter(mv -> mv.hitratio > 0 && mv.hitratio <= 50)
+                        .filter(mv -> mv.hitratio > 0 && mv.hitratio <= 70)
                         .map(mv -> mv.number)
                         .collect(Collectors.toList()));
                 break;
@@ -603,6 +613,17 @@ public class MoveSynergy {
                 antiSynergisticMoves.add(Moves.hail);
                 antiSynergisticMoves.add(Moves.sandstorm);
                 break;
+            case Abilities.noGuard:
+                antiSynergisticMoves.add(Moves.lockOn);
+                antiSynergisticMoves.add(Moves.mindReader);
+                antiSynergisticMoves.addAll(moveList
+                        .stream()
+                        .filter(mv -> mv.hasSpecificStatChange(StatChangeType.ACCURACY, true) ||
+                                mv.hasSpecificStatChange(StatChangeType.EVASION, true) ||
+                                mv.hasSpecificStatChange(StatChangeType.EVASION, false))
+                        .map(mv -> mv.number)
+                        .collect(Collectors.toList()));
+                break;
             case Abilities.damp:
                 antiSynergisticMoves.add(Moves.selfDestruct);
                 antiSynergisticMoves.add(Moves.explosion);
@@ -801,6 +822,12 @@ public class MoveSynergy {
             synergisticMoves.add(Moves.powerTrip);
         }
 
+        if (mv1.statusType == StatusType.SLEEP) {
+            synergisticMoves.add(Moves.dreamEater);
+            synergisticMoves.add(Moves.nightmare);
+            synergisticMoves.add(Moves.hex);
+        }
+
         switch(mv1.number) {
             case Moves.toxic:       // fallthrough
                 synergisticMoves.add(Moves.protect);
@@ -898,6 +925,7 @@ public class MoveSynergy {
                         .filter(mv -> mv.category == MoveCategory.STATUS && mv.statusType == StatusType.CONFUSION)
                         .map(mv -> mv.number)
                         .collect(Collectors.toList()));
+                synergisticMoves.add(Moves.hex);
                 break;
             case Moves.hail:
                 synergisticMoves.add(Moves.blizzard);
@@ -936,6 +964,14 @@ public class MoveSynergy {
                 synergisticMoves.addAll(moveList
                         .stream()
                         .filter(mv -> mv.criticalChance == CriticalChance.INCREASED)
+                        .map(mv -> mv.number)
+                        .collect(Collectors.toList()));
+                break;
+            case Moves.focusPunch:
+                synergisticMoves.addAll(moveList
+                        .stream()
+                        .filter(mv -> mv.statusMoveType == StatusMoveType.NO_DAMAGE &&
+                                mv.statusType == StatusType.SLEEP)
                         .map(mv -> mv.number)
                         .collect(Collectors.toList()));
                 break;
