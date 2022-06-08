@@ -251,7 +251,7 @@ public interface RomHandler {
 
     void randomizeTrainerHeldItems(Settings settings);
 
-    List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets);
+    List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves);
 
     List<Integer> getAllConsumableHeldItems();
 

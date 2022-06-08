@@ -4314,13 +4314,12 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen3Constants.generalPurposeConsumableItems);
         if (!consumableOnly) {
             items.addAll(Gen3Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);
             if (move == null) {

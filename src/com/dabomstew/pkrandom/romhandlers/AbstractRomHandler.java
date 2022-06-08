@@ -1913,6 +1913,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         boolean giveToImportantPokemon = settings.isRandomizeHeldItemsForImportantTrainerPokemon();
         boolean giveToRegularPokemon = settings.isRandomizeHeldItemsForRegularTrainerPokemon();
         boolean highestLevelOnly = settings.isHighestLevelGetsItemsForTrainers();
+        boolean betterMovesets = settings.isBetterTrainerMovesets();
 
         List<Move> moves = this.getMoves();
         Map<Integer, List<MoveLearnt>> movesets = this.getMovesLearnt();
@@ -1943,17 +1944,29 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (highestLevelPoke == null) {
                     continue; // should never happen - trainer had zero pokes
                 }
-                randomizeHeldItem(highestLevelPoke, settings, moves, movesets);
+                int[] moveset = highestLevelPoke.resetMoves ?
+                        RomFunctions.getMovesAtLevel(getAltFormeOfPokemon(
+                                highestLevelPoke.pokemon, highestLevelPoke.forme).number,
+                                movesets,
+                                highestLevelPoke.level) :
+                        highestLevelPoke.moves;
+                randomizeHeldItem(highestLevelPoke, settings, moves, moveset);
             } else {
                 for (TrainerPokemon tp : t.pokemon) {
-                    randomizeHeldItem(tp, settings, moves, movesets);
+                    int[] moveset = tp.resetMoves ?
+                            RomFunctions.getMovesAtLevel(getAltFormeOfPokemon(
+                                    tp.pokemon, tp.forme).number,
+                                    movesets,
+                                    tp.level) :
+                            tp.moves;
+                    randomizeHeldItem(tp, settings, moves, moveset);
                 }
             }
         }
         this.setTrainers(currentTrainers, false);
     }
 
-    private void randomizeHeldItem(TrainerPokemon tp, Settings settings, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    private void randomizeHeldItem(TrainerPokemon tp, Settings settings, List<Move> moves, int[] moveset) {
         boolean sensibleItemsOnly = settings.isSensibleItemsOnlyForTrainers();
         boolean consumableItemsOnly = settings.isConsumableItemsOnlyForTrainers();
         boolean swapMegaEvolutions = settings.isSwapTrainerMegaEvos();
@@ -1965,7 +1978,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         }
         List<Integer> toChooseFrom;
         if (sensibleItemsOnly) {
-            toChooseFrom = getSensibleHeldItemsFor(tp, consumableItemsOnly, moves, movesets);
+            toChooseFrom = getSensibleHeldItemsFor(tp, consumableItemsOnly, moves, moveset);
         } else if (consumableItemsOnly) {
             toChooseFrom = getAllConsumableHeldItems();
         } else {
@@ -2229,8 +2242,6 @@ public abstract class AbstractRomHandler implements RomHandler {
             for (TrainerPokemon tp: t.pokemon) {
                 tp.resetMoves = false;
 
-                System.out.println(tp.toString() + ", Ability: " + abilityName(getAbilityForTrainerPokemon(tp)));
-
                 List<Move> movesAtLevel = getMoveSelectionPoolAtLevel(tp, isCyclicEvolutions);
 
                 movesAtLevel = trimMoveList(tp, movesAtLevel, doubleBattleMode);
@@ -2239,14 +2250,22 @@ public abstract class AbstractRomHandler implements RomHandler {
                     continue;
                 }
 
+                double trainerTypeModifier = 1;
+                if (t.isImportant()) {
+                    trainerTypeModifier = 1.5;
+                } else if (t.isBoss()) {
+                    trainerTypeModifier = 2;
+                }
                 double movePoolSizeModifier = movesAtLevel.size() / 10.0;
+                double bonusModifier = trainerTypeModifier * movePoolSizeModifier;
+
                 double atkSpatkRatioModifier = 0.75;
-                double stabMoveBias = 0.25 * movePoolSizeModifier;
-                double hardAbilityMoveBias = 1 * movePoolSizeModifier;
-                double softAbilityMoveBias = 0.25 * movePoolSizeModifier;
-                double statBias = 0.5 * movePoolSizeModifier;
-                double softMoveBias = 0.25 * movePoolSizeModifier;
-                double hardMoveBias = 1 * movePoolSizeModifier;
+                double stabMoveBias = 0.25 * bonusModifier;
+                double hardAbilityMoveBias = 1 * bonusModifier;
+                double softAbilityMoveBias = 0.25 * bonusModifier;
+                double statBias = 0.5 * bonusModifier;
+                double softMoveBias = 0.25 * bonusModifier;
+                double hardMoveBias = 1 * bonusModifier;
                 double softMoveAntiBias = 0.5;
 
                 // Add bias for STAB
@@ -2287,11 +2306,9 @@ public abstract class AbstractRomHandler implements RomHandler {
                         generationOfPokemon(),
                         perfectAccuracy);
                 Collections.shuffle(abilityMoveSynergyList, this.random);
-                //System.out.println("Hard Ability Move Synergy:");
                 for (int i = 0; i < hardAbilityMoveBias * abilityMoveSynergyList.size(); i++) {
                     int j = i % abilityMoveSynergyList.size();
                     movesAtLevel.add(abilityMoveSynergyList.get(j));
-                    //System.out.println(abilityMoveSynergyList.get(j).name);
                 }
 
                 // Soft ability/move synergy
@@ -2303,11 +2320,9 @@ public abstract class AbstractRomHandler implements RomHandler {
                         pk.secondaryType);
 
                 Collections.shuffle(softAbilityMoveSynergyList, this.random);
-                //System.out.println("Soft Ability Move Synergy:");
                 for (int i = 0; i < softAbilityMoveBias * softAbilityMoveSynergyList.size(); i++) {
                     int j = i % softAbilityMoveSynergyList.size();
                     movesAtLevel.add(softAbilityMoveSynergyList.get(j));
-                    //System.out.println(softAbilityMoveSynergyList.get(j).name);
                 }
 
                 // Soft ability/move anti-synergy
@@ -2315,10 +2330,8 @@ public abstract class AbstractRomHandler implements RomHandler {
                 List<Move> softAbilityMoveAntiSynergyList = MoveSynergy.getSoftAbilityMoveAntiSynergy(
                         getAbilityForTrainerPokemon(tp), movesAtLevel);
                 List<Move> withoutSoftAntiSynergy = new ArrayList<>(movesAtLevel);
-                //System.out.println("Soft Ability Move Anti-Synergy:");
                 for (Move mv: softAbilityMoveAntiSynergyList) {
                     withoutSoftAntiSynergy.remove(mv);
-                    //System.out.println(mv.name);
                 }
                 if (withoutSoftAntiSynergy.size() > 0) {
                     movesAtLevel = withoutSoftAntiSynergy;
@@ -2343,21 +2356,17 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                 List<Move> statSynergyList = MoveSynergy.getStatMoveSynergy(pk, movesAtLevel);
                 Collections.shuffle(statSynergyList, this.random);
-                //System.out.println("Stat Synergy:");
                 for (int i = 0; i < statBias * statSynergyList.size(); i++) {
                     int j = i % statSynergyList.size();
                     movesAtLevel.add(statSynergyList.get(j));
-                    //System.out.println(statSynergyList.get(j).name);
                 }
 
                 // Stat/move anti-synergy
 
                 List<Move> statAntiSynergyList = MoveSynergy.getStatMoveAntiSynergy(pk, movesAtLevel);
                 List<Move> withoutStatAntiSynergy = new ArrayList<>(movesAtLevel);
-                //System.out.println("Soft Stat Anti-Synergy:");
                 for (Move mv: statAntiSynergyList) {
                     withoutStatAntiSynergy.remove(mv);
-                    //System.out.println(mv.name);
                 }
                 if (withoutStatAntiSynergy.size() > 0) {
                     movesAtLevel = withoutStatAntiSynergy;
@@ -2411,7 +2420,6 @@ public abstract class AbstractRomHandler implements RomHandler {
                     atkSpatkRatio = 1 / atkSpatkRatio;
                     double acceptedRatio = atkSpatkRatioModifier * atkSpatkRatio;
                     int additionalMoves = (int)(physicalMoves.size() * acceptedRatio) - specialMoves.size();
-                    //System.out.println("Adjusting Atk/Spatk Ratio by Adding " + additionalMoves + " Special Moves");
                     for (int i = 0; i < additionalMoves; i++) {
                         Move mv = specialMoves.get(this.random.nextInt(specialMoves.size()));
                         movesAtLevel.add(mv);
@@ -2419,7 +2427,6 @@ public abstract class AbstractRomHandler implements RomHandler {
                 } else if (physicalMoves.size() > 0) {
                     double acceptedRatio = atkSpatkRatioModifier * atkSpatkRatio;
                     int additionalMoves = (int)(specialMoves.size() * acceptedRatio) - physicalMoves.size();
-                    //System.out.println("Adjusting Atk/Spatk Ratio by Adding " + additionalMoves + " Physical Moves");
                     for (int i = 0; i < additionalMoves; i++) {
                         Move mv = physicalMoves.get(this.random.nextInt(physicalMoves.size()));
                         movesAtLevel.add(mv);
@@ -2469,7 +2476,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
                     move = pickFrom.get(this.random.nextInt(pickFrom.size()));
                     pickedMoves.add(move);
-                    System.out.println(move.name);
 
                     if (i == 4) {
                         break;
@@ -7377,7 +7383,7 @@ public abstract class AbstractRomHandler implements RomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         return Arrays.asList(0);
     }
 

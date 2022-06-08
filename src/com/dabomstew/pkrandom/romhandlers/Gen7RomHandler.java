@@ -1729,7 +1729,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                             writeWord(trpoke, pokeOffs + m * 2, pokeMoves[m]);
                         }
                         if (Gen7Constants.heldZCrystals.contains(tp.heldItem)) { // Choose a new Z-Crystal at random based on the types of the Pokemon's moves
-                            int chosenMove = this.random.nextInt(Arrays.stream(pokeMoves).filter(pk -> pk != 0).toArray().length);
+                            int chosenMove = this.random.nextInt(Arrays.stream(pokeMoves).filter(mv -> mv != 0).toArray().length);
                             int newZCrystal = Gen7Constants.heldZCrystals.get((int)Gen7Constants.typeToByte(moves[pokeMoves[chosenMove]].type));
                             writeWord(trpoke, pokeOffs - 4, newZCrystal);
                         }
@@ -1738,6 +1738,11 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                         writeWord(trpoke, pokeOffs + 2, tp.moves[1]);
                         writeWord(trpoke, pokeOffs + 4, tp.moves[2]);
                         writeWord(trpoke, pokeOffs + 6, tp.moves[3]);
+                        if (Gen7Constants.heldZCrystals.contains(tp.heldItem)) { // Choose a new Z-Crystal at random based on the types of the Pokemon's moves
+                            int chosenMove = this.random.nextInt(Arrays.stream(tp.moves).filter(mv -> mv != 0).toArray().length);
+                            int newZCrystal = Gen7Constants.heldZCrystals.get((int)Gen7Constants.typeToByte(moves[tp.moves[chosenMove]].type));
+                            writeWord(trpoke, pokeOffs - 4, newZCrystal);
+                        }
                     }
                     pokeOffs += 8;
                 }
@@ -3649,7 +3654,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen7Constants.generalPurposeConsumableItems);
         int frequencyBoostCount = 6; // Make some very good items more common, but not too common
@@ -3657,7 +3662,6 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
             frequencyBoostCount = 8; // bigger to account for larger item pool.
             items.addAll(Gen7Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         int numDamagingMoves = 0;
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);

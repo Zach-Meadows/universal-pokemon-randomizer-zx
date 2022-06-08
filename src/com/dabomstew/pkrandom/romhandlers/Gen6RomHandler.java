@@ -4099,7 +4099,7 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen6Constants.generalPurposeConsumableItems);
         int frequencyBoostCount = 6; // Make some very good items more common, but not too common
@@ -4107,7 +4107,6 @@ public class Gen6RomHandler extends Abstract3DSRomHandler {
             frequencyBoostCount = 8; // bigger to account for larger item pool.
             items.addAll(Gen6Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         int numDamagingMoves = 0;
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);

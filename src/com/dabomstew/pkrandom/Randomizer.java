@@ -84,6 +84,7 @@ public class Randomizer {
         boolean startersChanged = false;
         boolean evolutionsChanged = false;
         boolean trainersChanged = false;
+        boolean trainerMovesetsChanged = false;
         boolean staticsChanged = false;
         boolean totemsChanged = false;
         boolean wildsChanged = false;
@@ -473,7 +474,10 @@ public class Randomizer {
             trainersChanged = true;
         }
 
-        romHandler.pickTrainerMovesets(settings);
+        if (settings.isBetterTrainerMovesets()) {
+            romHandler.pickTrainerMovesets(settings);
+            trainerMovesetsChanged = true;
+        }
 
         if (settings.isRandomizeHeldItemsForBossTrainerPokemon()
                 || settings.isRandomizeHeldItemsForImportantTrainerPokemon()
@@ -501,7 +505,7 @@ public class Randomizer {
         }
 
         if (trainersChanged) {
-            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged, true);
+            maybeLogTrainerChanges(log, originalTrainerNames, trainerNamesChanged, trainerMovesetsChanged);
         } else {
             log.println("Trainers: Unchanged." + NEWLINE);
         }

@@ -4200,7 +4200,7 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
     }
 
     @Override
-    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, Map<Integer, List<MoveLearnt>> movesets) {
+    public List<Integer> getSensibleHeldItemsFor(TrainerPokemon tp, boolean consumableOnly, List<Move> moves, int[] pokeMoves) {
         List<Integer> items = new ArrayList<>();
         items.addAll(Gen5Constants.generalPurposeConsumableItems);
         int frequencyBoostCount = 6; // Make some very good items more common, but not too common
@@ -4208,7 +4208,6 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
             frequencyBoostCount = 8; // bigger to account for larger item pool.
             items.addAll(Gen5Constants.generalPurposeItems);
         }
-        int[] pokeMoves = RomFunctions.getMovesAtLevel(tp.pokemon.number, movesets, tp.level);
         for (int moveIdx : pokeMoves) {
             Move move = moves.get(moveIdx);
             if (move == null) {
