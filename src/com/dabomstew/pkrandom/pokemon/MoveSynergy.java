@@ -351,6 +351,13 @@ public class MoveSynergy {
                         .collect(Collectors.toList()));
                 synergisticMoves.add(Moves.acupressure);
                 break;
+            case Abilities.adaptability:
+                synergisticMoves.addAll(moveList
+                        .stream()
+                        .filter(mv -> mv.category != MoveCategory.STATUS && (mv.type == pkType1 || mv.type == pkType2))
+                        .map(mv -> mv.number)
+                        .collect(Collectors.toList()));
+                break;
             case Abilities.skillLink:
                 synergisticMoves.addAll(moveList
                         .stream()

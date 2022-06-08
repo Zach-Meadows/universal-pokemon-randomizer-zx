@@ -2136,7 +2136,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             allTMMoves = getTMMoves();
         }
 
-        if (allTutorCompat == null) {
+        if (allTutorCompat == null && hasMoveTutors()) {
             allTutorCompat = getMoveTutorCompatibility();
         }
 
@@ -2262,7 +2262,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                 double atkSpatkRatioModifier = 0.75;
                 double stabMoveBias = 0.25 * bonusModifier;
                 double hardAbilityMoveBias = 1 * bonusModifier;
-                double softAbilityMoveBias = 0.25 * bonusModifier;
+                double softAbilityMoveBias = 0.5 * bonusModifier;
                 double statBias = 0.5 * bonusModifier;
                 double softMoveBias = 0.25 * bonusModifier;
                 double hardMoveBias = 1 * bonusModifier;
