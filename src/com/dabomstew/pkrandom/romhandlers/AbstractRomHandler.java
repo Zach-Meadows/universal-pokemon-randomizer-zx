@@ -3194,7 +3194,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         List<Pokemon> banned = getBannedFormesForPlayerPokemon();
         pickedStarters = new ArrayList<>();
-        // add if case for if customStarters[0] == 0 (random is chosen)
         if (abilitiesUnchanged) {
             List<Pokemon> abilityDependentFormes = getAbilityDependentFormes();
             banned.addAll(abilityDependentFormes);
@@ -3202,7 +3201,14 @@ public abstract class AbstractRomHandler implements RomHandler {
         if (banIrregularAltFormes) {
             banned.addAll(getIrregularFormes());
         }
-
+        // loop to add chosen pokemon to banned, preventing it from being a random option.
+        for (int i = 0; i < customStarters.length; i = i + 1){
+            if (!(customStarters[i] - 1 == 0)){
+                System.out.println(customStarters[i] - 1);
+                System.out.println(romPokemon.get(customStarters[i] - 1));
+                banned.add(romPokemon.get(customStarters[i] - 1));
+            }
+        }
         if (customStarters[0] - 1 == 0){
             Pokemon pkmn = allowAltFormes ? randomPokemonInclFormes() : randomPokemon();
             while (pickedStarters.contains(pkmn) || banned.contains(pkmn) || pkmn.actuallyCosmetic) {
