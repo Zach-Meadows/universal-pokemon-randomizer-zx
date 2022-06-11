@@ -3204,8 +3204,6 @@ public abstract class AbstractRomHandler implements RomHandler {
         // loop to add chosen pokemon to banned, preventing it from being a random option.
         for (int i = 0; i < customStarters.length; i = i + 1){
             if (!(customStarters[i] - 1 == 0)){
-                System.out.println(customStarters[i] - 1);
-                System.out.println(romPokemon.get(customStarters[i] - 1));
                 banned.add(romPokemon.get(customStarters[i] - 1));
             }
         }
